@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 
 const treinosPadrao = {
@@ -32,8 +33,7 @@ const treinosPadrao = {
 };
 
 const App = () => {
-  // Inicializa já com o padrão para evitar estado vazio
-  const [planilha, setPlanilha] = useState(treinosPadrao);
+  const [planilha, setPlanilha] = useState({});
 
   useEffect(() => {
     const saved = localStorage.getItem("planilhaGabriel");
@@ -41,15 +41,15 @@ const App = () => {
       try {
         setPlanilha(JSON.parse(saved));
       } catch {
-        // Se der erro, mantém o padrão
         setPlanilha(treinosPadrao);
       }
+    } else {
+      setPlanilha(treinosPadrao);
     }
   }, []);
 
   useEffect(() => {
-    // Só salva se planilha tiver dados válidos (não vazio)
-    if (planilha && Object.keys(planilha).length > 0) {
+    if (Object.keys(planilha).length > 0) {
       localStorage.setItem("planilhaGabriel", JSON.stringify(planilha));
     }
   }, [planilha]);
@@ -72,9 +72,7 @@ const App = () => {
       <h1>Plano Semanal - Gabriel</h1>
       {Object.entries(planilha).map(([dia, dados]) => (
         <div key={dia} style={{ marginBottom: 20 }}>
-          <h2>
-            {dia.charAt(0).toUpperCase() + dia.slice(1)} - Treino: {dados.treino}
-          </h2>
+          <h2>{dia.charAt(0).toUpperCase() + dia.slice(1)} - Treino: {dados.treino}</h2>
           <label>
             Café:
             <input
