@@ -35,7 +35,7 @@ const App = () => {
   const [planilha, setPlanilha] = useState({});
 
   useEffect(() => {
-    const saved = localStorage.getItem("treinosPadrao");
+    const saved = localStorage.getItem("planilhaGabriel");
     if (saved) {
       try {
         setPlanilha(JSON.parse(saved));
