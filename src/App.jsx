@@ -34,14 +34,12 @@ const treinosPadrao = {
 const App = () => {
   const [planilha, setPlanilha] = useState({});
 
-  // Carregar do localStorage ou usar padrão
   useEffect(() => {
     const saved = localStorage.getItem("planilhaGabriel");
     if (saved) {
       try {
         setPlanilha(JSON.parse(saved));
-      } catch (e) {
-        console.error("Erro ao carregar planilha:", e);
+      } catch {
         setPlanilha(treinosPadrao);
       }
     } else {
@@ -49,7 +47,6 @@ const App = () => {
     }
   }, []);
 
-  // Auto-save sempre que mudar a planilha
   useEffect(() => {
     if (Object.keys(planilha).length > 0) {
       localStorage.setItem("planilhaGabriel", JSON.stringify(planilha));
