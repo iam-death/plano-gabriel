@@ -1,107 +1,64 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-const treinosPadrao = {
-  segunda: {
-    treino: "A",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  terca: {
-    treino: "B",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  quarta: {
-    treino: "descanso",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  quinta: {
-    treino: "C",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  sexta: {
-    treino: "A",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  sabado: {
-    treino: "descanso",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  domingo: {
-    treino: "descanso",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  }
-};
+export default function Treinos() {
+  const [treinos, setTreinos] = useState([]);
 
-const App = () => {
-  const [planilha, setPlanilha] = useState({});
-
+  // Carregar do localStorage quando a página abrir
   useEffect(() => {
-    const saved = localStorage.getItem("planilhaGabriel");
-    if (saved) {
+    const dados = localStorage.getItem("treinos");
+    if (dados) {
       try {
-        setPlanilha(JSON.parse(saved));
-      } catch {
-        setPlanilha(treinosPadrao);
+        const parsed = JSON.parse(dados);
+        setTreinos(parsed);
+      } catch (e) {
+        console.error("Erro ao converter os treinos:", e);
       }
-    } else {
-      setPlanilha(treinosPadrao);
     }
   }, []);
 
-  useEffect(() => {
-    if (Object.keys(planilha).length > 0) {
-      localStorage.setItem("planilhaGabriel", JSON.stringify(planilha));
+  // Exemplo de treino que pode ser salvo
+  const treinoExemplo = [
+    {
+      nome: "Peito",
+      exercicios: ["Supino reto", "Crucifixo", "Flexão"]
+    },
+    {
+      nome: "Costas",
+      exercicios: ["Puxada frontal", "Remada curvada", "Levantamento terra"]
     }
-  }, [planilha]);
+  ];
 
-  const handleChange = (dia, campo, valor) => {
-    setPlanilha((prev) => ({
-      ...prev,
-      [dia]: {
-        ...prev[dia],
-        refeicoes: {
-          ...prev[dia].refeicoes,
-          [campo]: valor
-        }
-      }
-    }));
+  // Função para salvar os treinos de exemplo
+  const salvarTreinos = () => {
+    localStorage.setItem("treinos", JSON.stringify(treinoExemplo));
+    setTreinos(treinoExemplo); // Atualiza a tela
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Plano Semanal - Gabriel</h1>
-      {Object.entries(planilha).map(([dia, dados]) => (
-        <div key={dia} style={{ marginBottom: 20 }}>
-          <h2>{dia.charAt(0).toUpperCase() + dia.slice(1)} - Treino: {dados.treino}</h2>
-          <label>
-            Café:
-            <input
-              type="text"
-              value={dados.refeicoes.cafe}
-              onChange={(e) => handleChange(dia, "cafe", e.target.value)}
-            />
-          </label>
-          <br />
-          <label>
-            Almoço:
-            <input
-              type="text"
-              value={dados.refeicoes.almoco}
-              onChange={(e) => handleChange(dia, "almoco", e.target.value)}
-            />
-          </label>
-          <br />
-          <label>
-            Janta:
-            <input
-              type="text"
-              value={dados.refeicoes.janta}
-              onChange={(e) => handleChange(dia, "janta", e.target.value)}
-            />
-          </label>
-        </div>
-      ))}
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Seus Treinos</h1>
+
+      <button
+        onClick={salvarTreinos}
+        className="bg-blue-500 text-white px-4 py-2 rounded mb-6 hover:bg-blue-600"
+      >
+        Salvar Treinos de Exemplo
+      </button>
+
+      {treinos.length === 0 ? (
+        <p className="text-gray-500">Nenhum treino salvo ainda.</p>
+      ) : (
+        treinos.map((treino, idx) => (
+          <div key={idx} className="mb-4 p-4 border rounded shadow">
+            <h2 className="text-lg font-semibold">{treino.nome}</h2>
+            <ul className="list-disc list-inside">
+              {treino.exercicios?.map((ex, i) => (
+                <li key={i}>{ex}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      )}
     </div>
   );
-};
-
-export default App;
+}
