@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 
 const treinosPadrao = {
@@ -36,7 +35,7 @@ const App = () => {
   const [planilha, setPlanilha] = useState({});
 
   useEffect(() => {
-    const saved = localStorage.getItem("planilhaGabriel");
+    const saved = localStorage.getItem("treinosPadrao");
     if (saved) {
       try {
         setPlanilha(JSON.parse(saved));
