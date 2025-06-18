@@ -1,41 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
 
-const dias = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+const treinosPadrao = {
+  segunda: {
+    treino: "A",
+    refeicoes: { cafe: "", almoco: "", janta: "" }
+  },
+  terca: {
+    treino: "B",
+    refeicoes: { cafe: "", almoco: "", janta: "" }
+  },
+  quarta: {
+    treino: "descanso",
+    refeicoes: { cafe: "", almoco: "", janta: "" }
+  },
+  quinta: {
+    treino: "C",
+    refeicoes: { cafe: "", almoco: "", janta: "" }
+  },
+  sexta: {
+    treino: "A",
+    refeicoes: { cafe: "", almoco: "", janta: "" }
+  },
+  sabado: {
+    treino: "descanso",
+    refeicoes: { cafe: "", almoco: "", janta: "" }
+  },
+  domingo: {
+    treino: "descanso",
+    refeicoes: { cafe: "", almoco: "", janta: "" }
+  }
+};
 
 const App = () => {
-  const [dados, setDados] = useState(() => {
-    const salvo = localStorage.getItem('planoGabriel');
-    return salvo ? JSON.parse(salvo) : Array(7).fill({ treino: '', refeicoes: '' });
-  });
+  const [planilha, setPlanilha] = useState({});
 
+  // Carregar do localStorage ou usar padrão
   useEffect(() => {
-    localStorage.setItem('planoGabriel', JSON.stringify(dados));
-  }, [dados]);
+    const saved = localStorage.getItem("planilhaGabriel");
+    if (saved) {
+      try {
+        setPlanilha(JSON.parse(saved));
+      } catch (e) {
+        console.error("Erro ao carregar planilha:", e);
+        setPlanilha(treinosPadrao);
+      }
+    } else {
+      setPlanilha(treinosPadrao);
+    }
+  }, []);
 
-  const atualizar = (index, campo, valor) => {
-    const novo = [...dados];
-    novo[index] = { ...novo[index], [campo]: valor };
-    setDados(novo);
+  // Auto-save sempre que mudar a planilha
+  useEffect(() => {
+    if (Object.keys(planilha).length > 0) {
+      localStorage.setItem("planilhaGabriel", JSON.stringify(planilha));
+    }
+  }, [planilha]);
+
+  const handleChange = (dia, campo, valor) => {
+    setPlanilha((prev) => ({
+      ...prev,
+      [dia]: {
+        ...prev[dia],
+        refeicoes: {
+          ...prev[dia].refeicoes,
+          [campo]: valor
+        }
+      }
+    }));
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-center mb-6">Plano Semanal - Gabriel</h1>
-      {dias.map((dia, i) => (
-        <div key={dia} className="mb-6 border p-4 rounded-xl shadow">
-          <h2 className="text-xl font-semibold mb-2">{dia}</h2>
-          <textarea
-            className="w-full border rounded p-2 mb-2"
-            placeholder="Treino do dia"
-            value={dados[i].treino}
-            onChange={(e) => atualizar(i, 'treino', e.target.value)}
-          />
-          <textarea
-            className="w-full border rounded p-2"
-            placeholder="Refeições do dia"
-            value={dados[i].refeicoes}
-            onChange={(e) => atualizar(i, 'refeicoes', e.target.value)}
-          />
+    <div style={{ padding: 20 }}>
+      <h1>Plano Semanal - Gabriel</h1>
+      {Object.entries(planilha).map(([dia, dados]) => (
+        <div key={dia} style={{ marginBottom: 20 }}>
+          <h2>{dia.charAt(0).toUpperCase() + dia.slice(1)} - Treino: {dados.treino}</h2>
+          <label>
+            Café:
+            <input
+              type="text"
+              value={dados.refeicoes.cafe}
+              onChange={(e) => handleChange(dia, "cafe", e.target.value)}
+            />
+          </label>
+          <br />
+          <label>
+            Almoço:
+            <input
+              type="text"
+              value={dados.refeicoes.almoco}
+              onChange={(e) => handleChange(dia, "almoco", e.target.value)}
+            />
+          </label>
+          <br />
+          <label>
+            Janta:
+            <input
+              type="text"
+              value={dados.refeicoes.janta}
+              onChange={(e) => handleChange(dia, "janta", e.target.value)}
+            />
+          </label>
         </div>
       ))}
     </div>
