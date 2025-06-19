@@ -11,44 +11,89 @@ const diasDaSemana = [
   "domingo"
 ];
 
-const treinosIniciais = diasDaSemana.reduce((acc, dia) => {
-  acc[dia] = { feito: false, descricao: dia === "quarta" || dia === "sabado" || dia === "domingo" ? "descanso" : dia === "quinta" ? "C" : dia === "terca" ? "B" : "A" };
-  return acc;
-}, {});
-
-const dietasIniciais = diasDaSemana.reduce((acc, dia) => {
-  acc[dia] = `Dieta do dia ${dia}`;
-  return acc;
-}, {});
+const treinosIniciais = {
+  segunda: {
+    tipo: "A",
+    descricao: "Peito, tríceps e Abdômen",
+    exercicios: [
+      "Supino reto – 4x8-10",
+      "Supino inclinado – 3x10",
+      "Cross-over – 3x12",
+      "Tríceps na polia – 3x12",
+      "Mergulho no banco – 3x10",
+      "Prancha – 3x 1 min",
+      "Elevação de pernas – 3x15"
+    ],
+    feitos: []
+  },
+  terca: {
+    tipo: "B",
+    descricao: "Costas e Bíceps",
+    exercicios: ["Puxada alta", "Remada curvada", "Rosca direta"],
+    feitos: []
+  },
+  quarta: {
+    tipo: "descanso",
+    descricao: "Descanso",
+    exercicios: [],
+    feitos: []
+  },
+  quinta: {
+    tipo: "C",
+    descricao: "Pernas e Ombro",
+    exercicios: ["Agachamento", "Leg Press", "Desenvolvimento com halteres"],
+    feitos: []
+  },
+  sexta: {
+    tipo: "A",
+    descricao: "Peito, tríceps e Abdômen",
+    exercicios: [
+      "Supino reto – 4x8-10",
+      "Supino inclinado – 3x10",
+      "Cross-over – 3x12",
+      "Tríceps na polia – 3x12",
+      "Mergulho no banco – 3x10",
+      "Prancha – 3x 1 min",
+      "Elevação de pernas – 3x15"
+    ],
+    feitos: []
+  },
+  sabado: {
+    tipo: "descanso",
+    descricao: "Descanso",
+    exercicios: [],
+    feitos: []
+  },
+  domingo: {
+    tipo: "descanso",
+    descricao: "Descanso",
+    exercicios: [],
+    feitos: []
+  }
+};
 
 const App = () => {
   const [treinos, setTreinos] = useState({});
-  const [dietas, setDietas] = useState({});
 
   useEffect(() => {
     const t = localStorage.getItem("treinosGabriel");
-    const d = localStorage.getItem("dietasGabriel");
     setTreinos(t ? JSON.parse(t) : treinosIniciais);
-    setDietas(d ? JSON.parse(d) : dietasIniciais);
   }, []);
 
   useEffect(() => {
     localStorage.setItem("treinosGabriel", JSON.stringify(treinos));
-    localStorage.setItem("dietasGabriel", JSON.stringify(dietas));
-  }, [treinos, dietas]);
+  }, [treinos]);
 
-  const toggleCheck = (dia) => {
-    setTreinos((prev) => ({
-      ...prev,
-      [dia]: { ...prev[dia], feito: !prev[dia].feito }
-    }));
-  };
-
-  const updateDescricao = (dia, valor) => {
-    setTreinos((prev) => ({
-      ...prev,
-      [dia]: { ...prev[dia], descricao: valor }
-    }));
+  const toggleExercicio = (dia, index) => {
+    setTreinos((prev) => {
+      const feitos = prev[dia].feitos.includes(index)
+        ? prev[dia].feitos.filter((i) => i !== index)
+        : [...prev[dia].feitos, index];
+      return {
+        ...prev,
+        [dia]: { ...prev[dia], feitos }
+      };
+    });
   };
 
   return (
@@ -56,19 +101,22 @@ const App = () => {
       <div className="w-full md:w-1/2">
         <h2 className="text-xl font-bold mb-4">Treinos</h2>
         {diasDaSemana.map((dia) => (
-          <div key={dia} className="flex items-center gap-2 mb-3 bg-white p-3 rounded shadow">
-            <input
-              type="checkbox"
-              checked={treinos[dia]?.feito || false}
-              onChange={() => toggleCheck(dia)}
-            />
-            <span className="capitalize w-20 font-semibold">{dia}</span>
-            <input
-              type="text"
-              value={treinos[dia]?.descricao || ""}
-              onChange={(e) => updateDescricao(dia, e.target.value)}
-              className="flex-1 border rounded p-1"
-            />
+          <div key={dia} className="mb-4 bg-white p-4 rounded shadow">
+            <h3 className="text-lg font-semibold capitalize mb-2">
+              {dia.charAt(0).toUpperCase() + dia.slice(1)}: Treino {treinos[dia]?.tipo} ({treinos[dia]?.descricao})
+            </h3>
+            <ul>
+              {treinos[dia]?.exercicios.map((ex, idx) => (
+                <li key={idx} className="flex items-center gap-2 mb-1">
+                  <input
+                    type="checkbox"
+                    checked={treinos[dia]?.feitos.includes(idx)}
+                    onChange={() => toggleExercicio(dia, idx)}
+                  />
+                  <span>{ex}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
@@ -79,7 +127,7 @@ const App = () => {
           <div key={dia} className="mb-3 bg-white p-3 rounded shadow">
             <h3 className="capitalize font-semibold mb-1">{dia}</h3>
             <p className="text-sm text-gray-700 whitespace-pre-line">
-              {dietas[dia]}
+              Dieta do dia {dia} (exemplo)
             </p>
           </div>
         ))}
