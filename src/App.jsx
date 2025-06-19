@@ -28,8 +28,16 @@ const treinosIniciais = {
   },
   terca: {
     tipo: "B",
-    descricao: "Costas e Bíceps",
-    exercicios: ["Puxada alta", "Remada curvada", "Rosca direta"],
+    descricao: "Costas, Bíceps e Abdômen",
+    exercicios: [
+      "Barra fixa assistida – 4x6-8",
+      "Remada baixa – 4x10",
+      "Puxada na frente – 3x12",
+      "Rosca direta – 3x10",
+      "Rosca martelo – 3x12",
+      "Abdominal infra – 3x15",
+      "Oblíquos – 3x20 (cada lado)"
+    ],
     feitos: []
   },
   quarta: {
@@ -40,8 +48,17 @@ const treinosIniciais = {
   },
   quinta: {
     tipo: "C",
-    descricao: "Pernas e Ombro",
-    exercicios: ["Agachamento", "Leg Press", "Desenvolvimento com halteres"],
+    descricao: "Pernas, Ombro e Abdômen",
+    exercicios: [
+      "Agachamento livre – 4x8",
+      "Leg press – 3x10",
+      "Mesa flexora – 3x12",
+      "Elevação lateral – 3x15",
+      "Desenvolvimento com halteres – 3x10",
+      "Avanço – 3x12 (cada perna)",
+      "Prancha lateral – 3x 30s cada lado",
+      "Abdominal superior – 3x15"
+    ],
     feitos: []
   },
   sexta: {
