@@ -1,108 +1,92 @@
 import React, { useEffect, useState } from "react";
+import "./index.css";
 
-const treinosPadrao = {
-  segunda: {
-    treino: "A",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  terca: {
-    treino: "B",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  quarta: {
-    treino: "descanso",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  quinta: {
-    treino: "C",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  sexta: {
-    treino: "A",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  sabado: {
-    treino: "descanso",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  },
-  domingo: {
-    treino: "descanso",
-    refeicoes: { cafe: "", almoco: "", janta: "" }
-  }
-};
+const diasDaSemana = [
+  "segunda",
+  "terca",
+  "quarta",
+  "quinta",
+  "sexta",
+  "sabado",
+  "domingo"
+];
+
+const treinosIniciais = diasDaSemana.reduce((acc, dia) => {
+  acc[dia] = { feito: false, descricao: dia === "quarta" || dia === "sabado" || dia === "domingo" ? "descanso" : dia === "quinta" ? "C" : dia === "terca" ? "B" : "A" };
+  return acc;
+}, {});
+
+const dietasIniciais = diasDaSemana.reduce((acc, dia) => {
+  acc[dia] = `Dieta do dia ${dia}`;
+  return acc;
+}, {});
 
 const App = () => {
-  const [planilha, setPlanilha] = useState({});
+  const [treinos, setTreinos] = useState({});
+  const [dietas, setDietas] = useState({});
 
-  // Carregar do localStorage ou usar padrão
   useEffect(() => {
-    const saved = localStorage.getItem("planilhaGabriel");
-    if (saved) {
-      try {
-        setPlanilha(JSON.parse(saved));
-      } catch (e) {
-        console.error("Erro ao carregar planilha:", e);
-        setPlanilha(treinosPadrao);
-      }
-    } else {
-      setPlanilha(treinosPadrao);
-    }
+    const t = localStorage.getItem("treinosGabriel");
+    const d = localStorage.getItem("dietasGabriel");
+    setTreinos(t ? JSON.parse(t) : treinosIniciais);
+    setDietas(d ? JSON.parse(d) : dietasIniciais);
   }, []);
 
-  // Auto-save sempre que mudar a planilha
   useEffect(() => {
-    if (Object.keys(planilha).length > 0) {
-      localStorage.setItem("planilhaGabriel", JSON.stringify(planilha));
-    }
-  }, [planilha]);
+    localStorage.setItem("treinosGabriel", JSON.stringify(treinos));
+    localStorage.setItem("dietasGabriel", JSON.stringify(dietas));
+  }, [treinos, dietas]);
 
-  const handleChange = (dia, campo, valor) => {
-    setPlanilha((prev) => ({
+  const toggleCheck = (dia) => {
+    setTreinos((prev) => ({
       ...prev,
-      [dia]: {
-        ...prev[dia],
-        refeicoes: {
-          ...prev[dia].refeicoes,
-          [campo]: valor
-        }
-      }
+      [dia]: { ...prev[dia], feito: !prev[dia].feito }
+    }));
+  };
+
+  const updateDescricao = (dia, valor) => {
+    setTreinos((prev) => ({
+      ...prev,
+      [dia]: { ...prev[dia], descricao: valor }
     }));
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Plano Semanal - Gabriel</h1>
-      {Object.entries(planilha).map(([dia, dados]) => (
-        <div key={dia} style={{ marginBottom: 20 }}>
-          <h2>{dia.charAt(0).toUpperCase() + dia.slice(1)} - Treino: {dados.treino}</h2>
-          <label>
-            Café:
+    <div className="min-h-screen bg-gray-100 p-4 flex flex-col md:flex-row gap-6">
+      <div className="w-full md:w-1/2">
+        <h2 className="text-xl font-bold mb-4">Treinos</h2>
+        {diasDaSemana.map((dia) => (
+          <div key={dia} className="flex items-center gap-2 mb-3 bg-white p-3 rounded shadow">
+            <input
+              type="checkbox"
+              checked={treinos[dia]?.feito || false}
+              onChange={() => toggleCheck(dia)}
+            />
+            <span className="capitalize w-20 font-semibold">{dia}</span>
             <input
               type="text"
-              value={dados.refeicoes.cafe}
-              onChange={(e) => handleChange(dia, "cafe", e.target.value)}
+              value={treinos[dia]?.descricao || ""}
+              onChange={(e) => updateDescricao(dia, e.target.value)}
+              className="flex-1 border rounded p-1"
             />
-          </label>
-          <br />
-          <label>
-            Almoço:
-            <input
-              type="text"
-              value={dados.refeicoes.almoco}
-              onChange={(e) => handleChange(dia, "almoco", e.target.value)}
-            />
-          </label>
-          <br />
-          <label>
-            Janta:
-            <input
-              type="text"
-              value={dados.refeicoes.janta}
-              onChange={(e) => handleChange(dia, "janta", e.target.value)}
-            />
-          </label>
+          </div>
+        ))}
+      </div>
+
+      <div className="w-full md:w-1/2">
+        <h2 className="text-xl font-bold mb-4">Dieta</h2>
+        {diasDaSemana.map((dia) => (
+          <div key={dia} className="mb-3 bg-white p-3 rounded shadow">
+            <h3 className="capitalize font-semibold mb-1">{dia}</h3>
+            <p className="text-sm text-gray-700 whitespace-pre-line">
+              {dietas[dia]}
+            </p>
+          </div>
+        ))}
+        <div className="mt-4 text-gray-400 text-xs">
+          (Área de dieta será expandida futuramente com edição e mais detalhes)
         </div>
-      ))}
+      </div>
     </div>
   );
 };
