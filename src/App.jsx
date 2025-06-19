@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect } from "react";
 import TreinoSemana from "./components/TreinoSemana.jsx";
 import DietaSemana from "./components/DietaSemana.jsx";
@@ -13,7 +14,6 @@ const diasDaSemana = [
   "domingo"
 ];
 
-// Plano completo conforme definição
 const treinosIniciais = {
   segunda: {
     tipo: "A",
@@ -98,48 +98,40 @@ const dietasIniciais = diasDaSemana.reduce((acc, dia) => {
 }, {});
 
 export default function App() {
-  // Carrega do localStorage, mas sempre mantenha padrão completo
-  const [treinos, setTreinos] = useState(() => {
-    const saved = typeof localStorage !== "undefined"
-      ? localStorage.getItem("treinosGabriel")
-      : null;
-    return saved
-      ? JSON.parse(saved)
-      : { ...treinosIniciais };
-  });
-  const [dietas, setDietas] = useState(() => {
-    const saved = typeof localStorage !== "undefined"
-      ? localStorage.getItem("dietasGabriel")
-      : null;
-    return saved
-      ? JSON.parse(saved)
-      : { ...dietasIniciais };
-  });
+  const [treinos, setTreinos] = useState(treinosIniciais);
+  const [dietas, setDietas] = useState(dietasIniciais);
 
+  // Carrega do localStorage apenas no cliente
+  useEffect(() => {
+    const savedTreinos = localStorage.getItem("treinosGabriel");
+    const savedDietas = localStorage.getItem("dietasGabriel");
+    if (savedTreinos) {
+      setTreinos(JSON.parse(savedTreinos));
+    }
+    if (savedDietas) {
+      setDietas(JSON.parse(savedDietas));
+    }
+  }, []);
+
+  // Auto-save no cliente
   useEffect(() => {
     localStorage.setItem("treinosGabriel", JSON.stringify(treinos));
     localStorage.setItem("dietasGabriel", JSON.stringify(dietas));
   }, [treinos, dietas]);
 
-  // Antes de renderizar, mescla padrão + estado para garantir todas as chaves
-  const exibicaoTreinos = { ...treinosIniciais, ...treinos };
-
   const toggleExercicio = (dia, index) => {
     setTreinos(prev => {
-      const feitosAtuais = prev[dia]?.feitos || [];
+      const feitosAtuais = prev[dia].feitos || [];
       const novosFeitos = feitosAtuais.includes(index)
         ? feitosAtuais.filter(i => i !== index)
         : [...feitosAtuais, index];
-      return {
-        ...prev,
-        [dia]: { ...exibicaoTreinos[dia], feitos: novosFeitos }
-      };
+      return { ...prev, [dia]: { ...prev[dia], feitos: novosFeitos } };
     });
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex flex-col md:flex-row gap-6">
-      <TreinoSemana dias={diasDaSemana} treinos={exibicaoTreinos} toggleExercicio={toggleExercicio} />
+      <TreinoSemana dias={diasDaSemana} treinos={treinos} toggleExercicio={toggleExercicio} />
       <DietaSemana dias={diasDaSemana} dietas={dietas} />
     </div>
   );
