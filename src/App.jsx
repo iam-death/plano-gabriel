@@ -1,7 +1,6 @@
-// src/App.jsx
 import React, { useEffect, useState } from "react";
-import TreinoSemana from "./components/TreinoSemana";
-import DietaSemana from "./components/DietaSemana";
+import TreinoSemana from "./components/TreinoSemana.jsx";
+import DietaSemana from "./components/DietaSemana.jsx";
 import "./index.css";
 
 const diasDaSemana = [
@@ -29,14 +28,15 @@ const treinosIniciais = {
     feitos: []
   },
   terca: {
-    tipo: "Treino B (Costas E Bíceps)",
+    tipo: "Treino B (Costas, Bíceps e Abdômen)",
     exercicios: [
-      "Puxada alta – 4x10",
-      "Remada curvada – 4x10",
-      "Remada unilateral – 3x12",
+      "Barra fixa assistida – 4x6-8",
+      "Remada baixa – 4x10",
+      "Puxada na frente – 3x12",
       "Rosca direta – 3x10",
-      "Rosca alternada – 3x12",
-      "Rosca martelo – 3x12"
+      "Rosca martelo – 3x12",
+      "Abdominal infra – 3x15",
+      "Oblíquos – 3x20 (cada lado)"
     ],
     feitos: []
   },
@@ -46,13 +46,16 @@ const treinosIniciais = {
     feitos: []
   },
   quinta: {
-    tipo: "Treino C (Pernas E Ombro)",
+    tipo: "Treino C (Pernas, Ombro e Abdômen)",
     exercicios: [
-      "Agachamento – 4x10",
-      "Leg Press – 3x12",
+      "Agachamento livre – 4x8",
+      "Leg press – 3x10",
       "Mesa flexora – 3x12",
-      "Elevação lateral – 3x12",
-      "Desenvolvimento com halteres – 3x10"
+      "Elevação lateral – 3x15",
+      "Desenvolvimento com halteres – 3x10",
+      "Avanço – 3x12 (cada perna)",
+      "Prancha lateral – 3x 30s cada lado",
+      "Abdominal superior – 3x15"
     ],
     feitos: []
   },
@@ -70,15 +73,8 @@ const treinosIniciais = {
     feitos: []
   },
   sabado: {
-    tipo: "Treino B (Costas E Bíceps)",
-    exercicios: [
-      "Puxada alta – 4x10",
-      "Remada curvada – 4x10",
-      "Remada unilateral – 3x12",
-      "Rosca direta – 3x10",
-      "Rosca alternada – 3x12",
-      "Rosca martelo – 3x12"
-    ],
+    tipo: "Descanso",
+    exercicios: [],
     feitos: []
   },
   domingo: {
@@ -89,35 +85,32 @@ const treinosIniciais = {
 };
 
 const dietasIniciais = diasDaSemana.reduce((acc, dia) => {
-  acc[dia] = `Dieta do dia ${dia}`; // Placeholder para dietas personalizadas no futuro
+  acc[dia] = `Dieta do dia ${dia}`; // placeholder
   return acc;
 }, {});
 
 export default function App() {
-  const [treinos, setTreinos] = useState({});
-  const [dietas, setDietas] = useState({});
+  // inicializa direto do localStorage ou dos valores iniciais
+  const [treinos, setTreinos] = useState(() => {
+    const saved = localStorage.getItem("treinosGabriel");
+    return saved ? JSON.parse(saved) : treinosIniciais;
+  });
+  const [dietas, setDietas] = useState(() => {
+    const saved = localStorage.getItem("dietasGabriel");
+    return saved ? JSON.parse(saved) : dietasIniciais;
+  });
 
+  // auto-save
   useEffect(() => {
-    const t = localStorage.getItem("treinosGabriel");
-    const d = localStorage.getItem("dietasGabriel");
-    setTreinos(t ? JSON.parse(t) : treinosIniciais);
-    setDietas(d ? JSON.parse(d) : dietasIniciais);
-  }, []);
-
-  useEffect(() => {
-    if (Object.keys(treinos).length) {
-      localStorage.setItem("treinosGabriel", JSON.stringify(treinos));
-    }
-    if (Object.keys(dietas).length) {
-      localStorage.setItem("dietasGabriel", JSON.stringify(dietas));
-    }
+    localStorage.setItem("treinosGabriel", JSON.stringify(treinos));
+    localStorage.setItem("dietasGabriel", JSON.stringify(dietas));
   }, [treinos, dietas]);
 
   const toggleExercicio = (dia, index) => {
-    setTreinos((prev) => {
-      const feitosAtuais = prev[dia]?.feitos || [];
+    setTreinos(prev => {
+      const feitosAtuais = prev[dia].feitos || [];
       const novosFeitos = feitosAtuais.includes(index)
-        ? feitosAtuais.filter((i) => i !== index)
+        ? feitosAtuais.filter(i => i !== index)
         : [...feitosAtuais, index];
       return {
         ...prev,
@@ -128,7 +121,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex flex-col md:flex-row gap-6">
-      <TreinoSemana dias={diasDaSemana} treinos={treinos} toggleExercicio={toggleExercicio} />
+      <TreinoSemana
+        dias={diasDaSemana}
+        treinos={treinos}
+        toggleExercicio={toggleExercicio}
+      />
       <DietaSemana dias={diasDaSemana} dietas={dietas} />
     </div>
   );

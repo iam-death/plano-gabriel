@@ -1,11 +1,10 @@
-// src/components/CardTreino.jsx
 import React from "react";
 
 export default function CardTreino({ dia, treino, toggleExercicio }) {
   return (
     <div className="mb-4 bg-white p-4 rounded shadow">
       <h3 className="text-lg font-semibold capitalize mb-2">
-        {dia.charAt(0).toUpperCase() + dia.slice(1)}: Treino {treino.tipo} ({treino.descricao})
+        {dia.charAt(0).toUpperCase() + dia.slice(1)}: {treino.tipo}
       </h3>
       <ul>
         {treino.exercicios.map((ex, idx) => (
