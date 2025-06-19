@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// src/App.jsx
+import React, { useState, useEffect } from "react";
 import TreinoSemana from "./components/TreinoSemana.jsx";
 import DietaSemana from "./components/DietaSemana.jsx";
 import "./index.css";
@@ -15,7 +16,8 @@ const diasDaSemana = [
 
 const treinosIniciais = {
   segunda: {
-    tipo: "Treino A (Peito, Tríceps E Abdômen)",
+    tipo: "A",
+    descricao: "Peito, tríceps e Abdômen",
     exercicios: [
       "Supino reto – 4x8-10",
       "Supino inclinado – 3x10",
@@ -28,7 +30,8 @@ const treinosIniciais = {
     feitos: []
   },
   terca: {
-    tipo: "Treino B (Costas, Bíceps e Abdômen)",
+    tipo: "B",
+    descricao: "Costas, bíceps e Abdômen",
     exercicios: [
       "Barra fixa assistida – 4x6-8",
       "Remada baixa – 4x10",
@@ -42,11 +45,13 @@ const treinosIniciais = {
   },
   quarta: {
     tipo: "Descanso",
+    descricao: "Descanso",
     exercicios: [],
     feitos: []
   },
   quinta: {
-    tipo: "Treino C (Pernas, Ombro e Abdômen)",
+    tipo: "C",
+    descricao: "Pernas, ombro e Abdômen",
     exercicios: [
       "Agachamento livre – 4x8",
       "Leg press – 3x10",
@@ -60,7 +65,8 @@ const treinosIniciais = {
     feitos: []
   },
   sexta: {
-    tipo: "Treino A (Peito, Tríceps E Abdômen)",
+    tipo: "A",
+    descricao: "Peito, tríceps e Abdômen",
     exercicios: [
       "Supino reto – 4x8-10",
       "Supino inclinado – 3x10",
@@ -74,33 +80,40 @@ const treinosIniciais = {
   },
   sabado: {
     tipo: "Descanso",
+    descricao: "Descanso",
     exercicios: [],
     feitos: []
   },
   domingo: {
     tipo: "Descanso",
+    descricao: "Descanso",
     exercicios: [],
     feitos: []
   }
 };
 
 const dietasIniciais = diasDaSemana.reduce((acc, dia) => {
-  acc[dia] = `Dieta do dia ${dia}`; // placeholder
+  acc[dia] = `Dieta do dia ${dia}`; // placeholder para edição futura
   return acc;
 }, {});
 
 export default function App() {
-  // inicializa direto do localStorage ou dos valores iniciais
   const [treinos, setTreinos] = useState(() => {
-    const saved = localStorage.getItem("treinosGabriel");
-    return saved ? JSON.parse(saved) : treinosIniciais;
-  });
-  const [dietas, setDietas] = useState(() => {
-    const saved = localStorage.getItem("dietasGabriel");
-    return saved ? JSON.parse(saved) : dietasIniciais;
+    if (typeof localStorage !== "undefined") {
+      const saved = localStorage.getItem("treinosGabriel");
+      return saved ? JSON.parse(saved) : treinosIniciais;
+    }
+    return treinosIniciais;
   });
 
-  // auto-save
+  const [dietas, setDietas] = useState(() => {
+    if (typeof localStorage !== "undefined") {
+      const saved = localStorage.getItem("dietasGabriel");
+      return saved ? JSON.parse(saved) : dietasIniciais;
+    }
+    return dietasIniciais;
+  });
+
   useEffect(() => {
     localStorage.setItem("treinosGabriel", JSON.stringify(treinos));
     localStorage.setItem("dietasGabriel", JSON.stringify(dietas));
@@ -108,7 +121,7 @@ export default function App() {
 
   const toggleExercicio = (dia, index) => {
     setTreinos(prev => {
-      const feitosAtuais = prev[dia].feitos || [];
+      const feitosAtuais = prev[dia]?.feitos || [];
       const novosFeitos = feitosAtuais.includes(index)
         ? feitosAtuais.filter(i => i !== index)
         : [...feitosAtuais, index];
