@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect } from "react";
 import TreinoSemana from "./components/TreinoSemana.jsx";
 import DietaSemana from "./components/DietaSemana.jsx";
@@ -98,22 +97,21 @@ const dietasIniciais = diasDaSemana.reduce((acc, dia) => {
 }, {});
 
 export default function App() {
-  const [treinos, setTreinos] = useState(treinosIniciais);
-  const [dietas, setDietas] = useState(dietasIniciais);
+  // Estado inicia sempre com o plano completo
+  const [treinos, setTreinos] = useState(() => {
+    const saved = typeof localStorage !== "undefined"
+      ? localStorage.getItem("treinosGabriel")
+      : null;
+    return saved ? JSON.parse(saved) : { ...treinosIniciais };
+  });
+  const [dietas, setDietas] = useState(() => {
+    const saved = typeof localStorage !== "undefined"
+      ? localStorage.getItem("dietasGabriel")
+      : null;
+    return saved ? JSON.parse(saved) : { ...dietasIniciais };
+  });
 
-  // Carrega do localStorage apenas no cliente
-  useEffect(() => {
-    const savedTreinos = localStorage.getItem("treinosGabriel");
-    const savedDietas = localStorage.getItem("dietasGabriel");
-    if (savedTreinos) {
-      setTreinos(JSON.parse(savedTreinos));
-    }
-    if (savedDietas) {
-      setDietas(JSON.parse(savedDietas));
-    }
-  }, []);
-
-  // Auto-save no cliente
+  // Persistência
   useEffect(() => {
     localStorage.setItem("treinosGabriel", JSON.stringify(treinos));
     localStorage.setItem("dietasGabriel", JSON.stringify(dietas));
@@ -121,11 +119,14 @@ export default function App() {
 
   const toggleExercicio = (dia, index) => {
     setTreinos(prev => {
-      const feitosAtuais = prev[dia].feitos || [];
+      const feitosAtuais = prev[dia]?.feitos || [];
       const novosFeitos = feitosAtuais.includes(index)
         ? feitosAtuais.filter(i => i !== index)
         : [...feitosAtuais, index];
-      return { ...prev, [dia]: { ...prev[dia], feitos: novosFeitos } };
+      return {
+        ...prev,
+        [dia]: { ...prev[dia], feitos: novosFeitos }
+      };
     });
   };
 
